@@ -41,11 +41,11 @@ sub read_key {
 sub key_to_cmd {
     my $key = shift;
     my $cmd = '';
-    if ( $key eq "\e[C" ){
-        $cmd = 'right';
+    if ( $key eq "\e[A" ){
+        $cmd = 'up';
     }
-    if ( $key eq "\e[D" ){
-        $cmd = 'left';
+    if ( $key eq "\e[B" ){
+        $cmd = 'down';
     }
     if ( $key eq " " ){
         $cmd = 'play/pause';

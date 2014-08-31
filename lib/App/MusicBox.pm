@@ -6,16 +6,24 @@ use strict;
 use Moo;
 
 use App::MusicBox::Input;
+use App::MusicBox::Control;
+use App::MusicBox::UI;
+
 sub run {
     my $self = shift;
 
+    my $c  = App::MusicBox::Control->new();
+    my $ui = App::MusicBox::UI->new();
+    $ui->draw;
     my $quit = 0;
     while ( ! $quit ) {
         while ( my $key = App::MusicBox::Input::read_key() ) {
             my $cmd = App::MusicBox::Input::key_to_cmd($key);
-            say $cmd;
+            if ( $cmd eq 'up' ) {
+                say $cmd;
+            }
         }
-#        $ui->draw;
+        $ui->draw;
     }
 }
 
