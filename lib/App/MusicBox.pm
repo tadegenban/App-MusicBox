@@ -14,16 +14,15 @@ sub run {
 
     my $c  = App::MusicBox::Control->new();
     my $ui = App::MusicBox::UI->new();
-    $ui->draw;
+    $ui->draw_menu;
     my $quit = 0;
     while ( ! $quit ) {
         while ( my $key = App::MusicBox::Input::read_key() ) {
             my $cmd = App::MusicBox::Input::key_to_cmd($key);
             if ( $cmd eq 'up' ) {
-                say $cmd;
+                next;
             }
         }
-        $ui->draw;
     }
 }
 
