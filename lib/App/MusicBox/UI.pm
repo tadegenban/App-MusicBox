@@ -8,12 +8,38 @@ use Moo;
 use if $^O eq "MSWin32", "Win32::Console::ANSI";
 use Term::ANSIColor;
 
+
+has title => is => 'rw', default => 'ÍøÒ×ÔÆÒôÀÖ';
+has title_x    => is => 'rw', default => 30;
+has title_y    => is => 'rw', default => 2;
+
+has menu_list => (
+    is      => 'rw',
+    default => sub {
+        return ['ÅÅÐÐ°ñ', 'ÒÕÊõ¼Ò', 'ÐÂµúÉÏ¼Ü', '¾«Ñ¡¸èµ¥', 'ÎÒµÄ¸èµ¥', 'DJ½ÚÄ¿', '´òµú', 'ÊÕ²Ø', 'ËÑË÷', '°ïÖú'];
+    },
+    );
+has menu_index => is => 'rw', default => 0;
+has menu_index_sigil => is => 'rw', default => '$';
+has menu_x    => is => 'rw', default => 20;
+has menu_y    => is => 'rw', default => 6;
+
+
+sub draw {
+    my $self = shift;
+
+    local $| = 1;
+    $self->clear_screen;
+    $self->draw_title();
+    $self->draw_menu();
+}
+
 sub draw_title {
     my ( $self, $title ) = @_;
 
     $self->save_cursor;
-    $self->move_cursor(10, 10);
-    print $title;
+    $self->move_cursor($self->title_x, $self->title_y);
+    print $self->title;
     $self->restore_cursor;
 }
 
@@ -32,9 +58,19 @@ sub draw_loading {
 sub draw_menu {
     my $self = shift;
 
-    $self->clear_screen;
-    my $title = "ç½‘æ˜“äº‘éŸ³ä¹";
-    $self->draw_title($title);
+    $self->save_cursor;
+    $self->move_cursor($self->menu_x, $self->menu_y);
+
+    map { say $_; $self->move_cursor($self->menu_x, 0) } @{ $self->menu_list };
+
+    $self->restore_cursor;
+
+    $self->save_cursor;
+    $self->move_cursor($self->menu_x - length($self->menu_index_sigil),
+                      $self->menu_y + $self->menu_index);
+    print $self->menu_index_sigil;
+
+    $self->restore_cursor;
 }
 
 sub draw_search {
@@ -90,6 +126,7 @@ sub clear_screen {
     my $self = shift;
     print "\e[1J";
     print "\e[1;1H";
+    print "\e[2J";
 }
 
 1;
