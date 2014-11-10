@@ -1,5 +1,6 @@
 package App::MusicBox;
 # ABSTRACT: main app
+our $VERSION = 0.001;
 use 5.012;
 use warnings;
 use strict;
