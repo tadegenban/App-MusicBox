@@ -1,35 +1,50 @@
-#encoding: UTF-8
 package App::MusicBox::UI;
 use 5.012;
 use strict;
 use warnings;
-use Moo;
+use utf8;
+use Encode qw( decode encode from_to is_utf8 );
 
+use Moo::Role;
 use if $^O eq "MSWin32", "Win32::Console::ANSI";
 use Term::ANSIColor;
+use Data::Dumper;
 
-
-has title => is => 'rw', default => 'ÍøÒ×ÔÆÒôÀÖ';
+has title => is => 'rw', default => 'ç½‘æ˜“äº‘éŸ³ä¹';
 has title_x    => is => 'rw', default => 30;
 has title_y    => is => 'rw', default => 2;
 
 has menu_list => (
     is      => 'rw',
     default => sub {
-        return ['ÅÅÐÐ°ñ', 'ÒÕÊõ¼Ò', 'ÐÂµúÉÏ¼Ü', '¾«Ñ¡¸èµ¥', 'ÎÒµÄ¸èµ¥', 'DJ½ÚÄ¿', '´òµú', 'ÊÕ²Ø', 'ËÑË÷', '°ïÖú'];
+        return ['æŽ’è¡Œæ¦œ', 'è‰ºæœ¯å®¶', 'æ–°ç¢Ÿä¸Šæž¶', 'ç²¾é€‰æ­Œå•', 'æˆ‘çš„æ­Œå•', 'DJèŠ‚ç›®', 'æ‰“ç¢Ÿ', 'æ”¶è—', 'æœç´¢', 'å¸®åŠ©'];
     },
+    );
+has menu_length => (
+    is      => 'rw',
+    lazy    => 1,
+    builder => 1,
     );
 has menu_index => is => 'rw', default => 0;
 has menu_index_sigil => is => 'rw', default => '$';
 has menu_x    => is => 'rw', default => 20;
 has menu_y    => is => 'rw', default => 6;
 
+has page => is => 'rw', default => 0;
+has page_cap => is => 'rw', default => 10;
+
+
+sub init {
+    my $self = shift;
+
+    $self->clear_screen;
+    $self->hide_cursor;
+}
 
 sub draw {
     my $self = shift;
 
     local $| = 1;
-    $self->clear_screen;
     $self->draw_title();
     $self->draw_menu();
 }
@@ -39,7 +54,7 @@ sub draw_title {
 
     $self->save_cursor;
     $self->move_cursor($self->title_x, $self->title_y);
-    print $self->title;
+    $self->print($self->title);
     $self->restore_cursor;
 }
 
@@ -61,16 +76,21 @@ sub draw_menu {
     $self->save_cursor;
     $self->move_cursor($self->menu_x, $self->menu_y);
 
-    map { say $_; $self->move_cursor($self->menu_x, 0) } @{ $self->menu_list };
+    for my $i ( 0.. @{$self->menu_list} - 1 ) {
+
+        $self->move_cursor(-length($self->menu_index_sigil), 0);
+        if ( $i == $self->menu_index ) {
+            $self->print($self->menu_index_sigil);
+        }
+        else {
+            $self->print(' ');
+        }
+        $self->print($self->menu_list->[$i] . "\n");
+        $self->move_cursor($self->menu_x, 0)
+    }
 
     $self->restore_cursor;
 
-    $self->save_cursor;
-    $self->move_cursor($self->menu_x - length($self->menu_index_sigil),
-                      $self->menu_y + $self->menu_index);
-    print $self->menu_index_sigil;
-
-    $self->restore_cursor;
 }
 
 sub draw_search {
@@ -93,6 +113,18 @@ sub draw_login_error {
 
 }
 
+sub _build_menu_length {
+    my $self = shift;
+
+    return scalar @{ $self->menu_list };
+}
+
+sub print {
+    my ( $self, $s ) = @_;
+
+    $s = encode('gbk', $s);
+    print $s;
+}
 
 # --- cursor related method
 
